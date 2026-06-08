@@ -422,6 +422,7 @@ All cross-references between wiki articles use BOTH link formats on the same lin
 - **Obsidian** reads the `[[wikilink]]` for its graph view, backlinks panel, and navigation
 - **The agent** follows the standard markdown `(relative/path.md)` link
 - Both coexist on one line so neither system misses the connection
+- A bare `[[wikilink]]` with no Markdown sibling is inert plain text in GitHub, the VS Code preview, and the web viewer — lint check **C4c** flags it as a violation
 
 For inline mentions in article body text, use the same pattern:
 ```

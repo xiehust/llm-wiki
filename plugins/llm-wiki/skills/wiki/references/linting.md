@@ -90,6 +90,14 @@ There is no `/wiki:migrate` command and there should never be one. Lint rules **
 - [ ] All "See Also" links are bidirectional (if A→B, then B→A)
 - [ ] All "Sources" links in wiki articles point to existing raw files. Links to paths with spaces should use angle-bracket markdown destinations, e.g. `[Title](<../../raw/articles/File Name.md>)`.
 
+### C4c: Dual-Link Completeness (Warning)
+
+Enforces Core Principle 5 (Dual-linking). A bare `[[wikilink]]` is clickable only inside Obsidian; in GitHub, the VS Code preview, and every other standard Markdown renderer it is inert plain text. Every cross-reference must carry both halves.
+
+- [ ] Every `[[slug|Display]]` (or `[[slug]]`) wikilink in a wiki article or inventory record body is immediately followed by its Markdown sibling on the same line: `[[slug|Display]] ([Display](relative/path.md))`. Flag any bare wikilink that has no `([...](....md))` directly after it.
+- [ ] Ignore wikilinks inside fenced code blocks (```) and inline code spans (`` ` ``) — those are documentation examples, not live cross-references.
+- [ ] With `--fix`, when the wikilink target resolves to a known article slug, append the matching Markdown link; otherwise leave the bare wikilink and report it for manual resolution (the slug may be a stub or typo).
+
 ### C4b: Source Provenance (Warning)
 
 - [ ] All `sources:` entries in wiki article frontmatter point to existing raw files (no dangling references to deleted/retracted sources). Resolve entries with the Source Reference Resolution protocol in `wiki-structure.md`: parse the full YAML scalar/path, preserve whitespace, exact path first, then slug fallback. Never split on whitespace.

@@ -63,6 +63,13 @@ rm -f "$DEFECTS/broken-inline-body-link/wiki/concepts/sample-concept.md.bak" \
   "$DEFECTS/broken-inline-body-link/inventory/items/trx4m-ring-and-pinion.md.bak"
 echo "  Created: broken-inline-body-link (C4)"
 
+# C4c: bare-wikilink — inline [[wikilink]] stripped of its Markdown sibling
+copy_golden "bare-wikilink"
+sed -i.bak 's@see \[\[sample-reference|Sample Reference\]\] (\[Sample Reference\](\.\./references/sample-reference\.md))@see [[sample-reference|Sample Reference]]@' \
+  "$DEFECTS/bare-wikilink/wiki/concepts/sample-concept.md"
+rm -f "$DEFECTS/bare-wikilink/wiki/concepts/sample-concept.md.bak"
+echo "  Created: bare-wikilink (C4c)"
+
 # C4b: dangling-source-ref — sources: entry points to deleted file
 copy_golden "dangling-source-ref"
 sed -i.bak '/^  - raw\/papers/a\

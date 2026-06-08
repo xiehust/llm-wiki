@@ -55,6 +55,9 @@ Compare actual directory contents against `_index.md` entries. Verify statistics
 #### 7. C4: Link Integrity (Warning)
 For each wiki article and inventory record, extract all markdown links. Verify each local markdown link resolves to an existing file. Check bidirectional "See Also" links for wiki articles.
 
+#### 7a. C4c: Dual-Link Completeness (Warning)
+For each wiki article and inventory record, scan the body (outside fenced code blocks and inline code spans) for `[[wikilink]]` cross-references. Flag any not immediately followed by their Markdown sibling `([Display](path.md))` — a bare wikilink is dead plain text outside Obsidian. With `--fix`, append the Markdown link when the slug resolves to a known article; otherwise report for manual resolution.
+
 #### 7b. C4b: Source Provenance (Warning)
 For wiki articles, verify `sources:` frontmatter resolves to existing raw sources using the Source Reference Resolution protocol. For inventory records, verify local `sources:` entries resolve to existing `raw/`, `wiki/`, `output/`, `datasets/`, or `inventory/` paths; external URLs are allowed. Inventory sources are provenance for tracking state, not factual evidence.
 

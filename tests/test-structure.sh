@@ -330,6 +330,43 @@ check_body_links "wiki" "$GOLDEN/wiki"
 check_body_links "inventory" "$GOLDEN/inventory"
 
 echo ""
+echo "--- C4c: Dual-link completeness ---"
+
+# Every [[wikilink]] in golden article/inventory bodies (outside code) must be
+# immediately followed by its Markdown sibling ([Display](path)). The golden
+# wiki is dual-linked throughout, so this must find zero bare wikilinks.
+check_dual_links() {
+  local label="$1"
+  shift
+  while IFS= read -r -d '' file; do
+    bn=$(basename "$file")
+    bare=$(python3 - "$file" <<'PY'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+# Drop fenced code blocks and inline code spans so doc examples don't trip the check.
+text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+text = re.sub(r"`[^`\n]*`", "", text)
+count = 0
+for m in re.finditer(r"\[\[[^\]\n]+\]\]", text):
+    rest = text[m.end():]
+    # Sibling must follow immediately (allowing a single space): ([Display](path))
+    if not re.match(r"\s?\(\[[^\]\n]*\]\([^)\n]+\)\)", rest):
+        count += 1
+print(count)
+PY
+)
+    if [ "$bare" -eq 0 ]; then
+      log_pass "$label dual-links complete: $bn"
+    else
+      log_fail "$label bare wikilink(s) in $bn: $bare" "C4c violation"
+    fi
+  done < <(find "$@" -name "*.md" -not -name "_index.md" -print0)
+}
+
+check_dual_links "wiki" "$GOLDEN/wiki"
+check_dual_links "inventory" "$GOLDEN/inventory"
+
+echo ""
 echo "--- C11: File placement ---"
 
 while IFS= read -r -d '' file; do
@@ -436,6 +473,13 @@ if [ -d "$DEFECTS" ]; then
       && grep -q "nonexistent-inventory-inline.md" "$DEFECTS/broken-inline-body-link/inventory/items/trx4m-ring-and-pinion.md" 2>/dev/null \
       && log_pass "broken-inline-body-link: C4 defect present" \
       || log_fail "broken-inline-body-link: no broken inline link" "fixture broken"
+  }
+
+  [ -d "$DEFECTS/bare-wikilink" ] && {
+    # inline wikilink with no Markdown sibling on the same line
+    grep -Eq 'see \[\[sample-reference\|Sample Reference\]\][^(]*$' "$DEFECTS/bare-wikilink/wiki/concepts/sample-concept.md" 2>/dev/null \
+      && log_pass "bare-wikilink: C4c defect present" \
+      || log_fail "bare-wikilink: wikilink still has Markdown sibling" "fixture broken"
   }
 
   [ -d "$DEFECTS/dangling-source-ref" ] && {
